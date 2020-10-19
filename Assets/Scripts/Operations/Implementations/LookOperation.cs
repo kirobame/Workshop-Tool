@@ -20,7 +20,6 @@ public class LookOperation : Operation<Vector2, OperationHandler>
             var direction = (point - position).normalized;
 
             source.transform.rotation = Quaternion.LookRotation(direction);
-            Debug.DrawRay(position, direction * 5, Color.red);          
         }
         Perform(args, parameters);
     }

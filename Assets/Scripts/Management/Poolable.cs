@@ -4,9 +4,9 @@ using UnityEngine.Events;
 public abstract class Poolable<T> : MonoBehaviour where T : Object
 {
     public T Value => value;
-
-    [SerializeField] private UnityEvent onReboot;
+    
     [SerializeField] private T value;
+    [SerializeField] private UnityEvent onReboot;
     
     private Pool<T> origin;
         

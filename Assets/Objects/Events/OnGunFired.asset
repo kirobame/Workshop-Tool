@@ -9,9 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1e0d901401a49bd9dc67ae3d98c91e7, type: 3}
-  m_Name: MoveOperation
+  m_Script: {fileID: 11500000, guid: 21e21aa91b7e48ab90c333e44218c6a3, type: 3}
+  m_Name: OnGunFired
   m_EditorClassIdentifier: 
-  preProcessors: []
-  subOperations: []
-  speed: 5

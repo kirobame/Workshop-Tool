@@ -7,14 +7,15 @@ public class FireOperation : Operation<Null, OperationHandler>
     {
         var pool = Repository.GetFirst<BulletPool>(parameters[0] as Token);
         var firePoint = parameters[1] as Transform;
+        
+        var remoteEvent = parameters[2] as RemoteEvent;
+        remoteEvent.Invoke();
 
         var bullet = pool.RequestSingle();
-        
+
         bullet.transform.position = firePoint.position;
         bullet.Fire(source.transform.forward);
-        
-        Debug.DrawRay(firePoint.position, source.transform.forward * 5, Color.blue, 25f);
-        
+      
         Perform(args, parameters);
     }
 }
