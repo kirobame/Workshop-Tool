@@ -1,21 +1,33 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewFireOperation", menuName = "Custom/Operations/Fire")]
+[OperationParameterTypes(typeof(Transform))]
+[OperationParameterNames("Fire Point")]
 public class FireOperation : Operation<Null, OperationHandler>
 {
-    protected override void Execute(Null args, Object[] parameters)
+    [SerializeField] private Token bulletPoolToken;
+    [SerializeField] private PoolableBullet bulletPrefab;
+    [SerializeField] private MuzzleFlashEffect muzzleFlashEffect;
+    [SerializeField] private float angleOffset;
+
+    protected override void During(Null args, Object[] parameters)
     {
-        var pool = Repository.GetFirst<BulletPool>(parameters[0] as Token);
-        var firePoint = parameters[1] as Transform;
+        var pool = Repository.GetFirst<BulletPool>(bulletPoolToken);
+        var firePoint = parameters[0] as Transform;
+
+        var bullets = pool.RequestSpecific(bulletPrefab, 1, poolable => poolable.Tag == bulletPrefab.Tag);
+        var bullet = bullets.First();
         
-        var remoteEvent = parameters[2] as RemoteEvent;
-        remoteEvent.Invoke();
-
-        var bullet = pool.RequestSingle();
-
         bullet.transform.position = firePoint.position;
-        bullet.Fire(source.transform.forward);
-      
-        Perform(args, parameters);
+        var direction = Quaternion.AngleAxis(angleOffset, Vector3.up) * source.transform.forward;
+        bullet.Fire(direction);
+        
+        if (muzzleFlashEffect.TryGetMuzzleFlash(out var muzzleFlash))
+        {
+            muzzleFlash.transform.position = firePoint.position;
+            muzzleFlash.transform.rotation = firePoint.rotation;
+            muzzleFlash.Play();
+        }
     }
 }

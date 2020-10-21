@@ -4,7 +4,11 @@ using UnityEngine.InputSystem;
 
 public abstract class Activator : ScriptableObject
 {
+    public event Action<object> OnBegan;
     public event Action<object> OnExecuted;
+    public event Action<object> OnFinished;
+    
+    public abstract string ShortName { get; }
     
     protected InputAction currentInput;
 
@@ -15,7 +19,9 @@ public abstract class Activator : ScriptableObject
     }
     public abstract void Unbind();
 
+    public void Begin(object args) => OnBegan?.Invoke(args);
     public void Execute(object args) => OnExecuted?.Invoke(args);
+    public void Finish(object args) => OnFinished?.Invoke(args);
 }
 public abstract class Activator<TInput> : Activator
 {

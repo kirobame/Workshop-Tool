@@ -1,6 +1,11 @@
-﻿public enum OperationPhase
+﻿using System;
+
+[Flags]
+public enum OperationPhase
 {
-    Beginning,
-    During,
-    End
+    None = 0,
+    
+    Beginning = 1,
+    During = 2,
+    End = 4
 }

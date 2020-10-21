@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class UpdatableActivator<TInput> : Activator<TInput>, IUpdatable
+public abstract class UpdatableActivator<TInput> : Activator<TInput>, IUpdatable
 {
     private TInput input;
     private bool canBeUpdated;

@@ -16,7 +16,10 @@ public class Operand
     [SerializeField] private Operation operation;
     [SerializeField] private Object[] parameters;
 
-    private Action<object> action;
+    private Action<object> beginAction;
+    private Action<object> performAction;
+    private Action<object> endAction;
+    
     private Operation runtimeOperation;
 
     public void Initialize()
@@ -27,8 +30,18 @@ public class Operand
 
     public void LinkTo(Activator activator)
     {
-        action = args => runtimeOperation.Execute(args, parameters);
-        activator.OnExecuted += action;
+        beginAction = args => runtimeOperation.Begin(args, parameters);
+        performAction = args => runtimeOperation.Perform(args, parameters);
+        endAction = args => runtimeOperation.End(args, parameters);
+
+        if (runtimeOperation.Phase.HasFlag(OperationPhase.Beginning)) activator.OnBegan += beginAction;
+        if (runtimeOperation.Phase.HasFlag(OperationPhase.During)) activator.OnExecuted += performAction;
+        if (runtimeOperation.Phase.HasFlag(OperationPhase.End)) activator.OnFinished += endAction;
     }
-    public void BreakLinkFor(Activator activator) =>  activator.OnExecuted -= action;
+    public void BreakLinkFor(Activator activator)
+    {
+        if (runtimeOperation.Phase.HasFlag(OperationPhase.Beginning)) activator.OnBegan -= beginAction;
+        if (runtimeOperation.Phase.HasFlag(OperationPhase.During)) activator.OnExecuted -= performAction;
+        if (runtimeOperation.Phase.HasFlag(OperationPhase.End)) activator.OnFinished -= endAction;
+    }
 }

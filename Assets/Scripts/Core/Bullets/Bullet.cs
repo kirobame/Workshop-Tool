@@ -39,14 +39,16 @@ public class Bullet : MonoBehaviour
         var delta = transform.forward * (Time.fixedDeltaTime * speed);
         var ray = new Ray(transform.position, delta);
         
-        Debug.DrawRay(ray.origin, delta, Color.green);
-        if (Physics.Raycast(ray, out var hit, Time.fixedDeltaTime * speed, collisionMask))
+        if (Physics.Raycast(ray, out var hit, Time.fixedDeltaTime * speed, collisionMask, QueryTriggerInteraction.Ignore))
         {
             StopCoroutine(lifetimeRoutine);
             lifetimeRoutine = null;
 
             StartCoroutine(KillRoutine(disappearanceTime));
-            
+
+            var hittable = hit.transform.GetComponent<IHittable>();
+            hittable?.Hit(this, hit);
+
             onHit.Invoke(hit);
             transform.position = hit.point;
 

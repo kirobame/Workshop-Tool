@@ -7,7 +7,10 @@ public class Decal : MonoBehaviour
 
     public void Place(RaycastHit hit)
     {
-        target.SetParent(null);
+        var hittable = hit.transform.GetComponent<IHittable>();
+        if (hittable != null && hittable.HasAlreadyBeenHit) return;
+        
+        target.SetParent(hit.transform);
         
         target.position = hit.point + hit.normal * Mathf.Epsilon;
         target.rotation = Quaternion.LookRotation(hit.normal);

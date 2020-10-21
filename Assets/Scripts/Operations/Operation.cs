@@ -7,11 +7,14 @@ using Object = UnityEngine.Object;
 
 public abstract class Operation : ScriptableObject
 {
-    public event Action<object,Object[]> OnBeginning;
+    public event Action<object,Object[]> OnBegan;
     public event Action<object,Object[]> OnPerformed;
     public event Action<object,Object[]> OnEnd;
+
+    public OperationPhase Phase => phase;
     
     [SerializeField] private PreProcessor[] preProcessors;
+    [SerializeField] private OperationPhase phase;
     [SerializeField] private List<SubOperation> subOperations;
 
     protected IEnumerable<PreProcessor> PreProcessors => runtimePreProcessors;
@@ -30,7 +33,6 @@ public abstract class Operation : ScriptableObject
     }
 
     public abstract void SetSource(OperationHandler source);
-    public abstract void Execute(object args, params Object[] parameters);
 
     public bool AddPreProcessor(PreProcessor preProcessor) => runtimePreProcessors.Add(preProcessor);
     public bool RemovePreProcessor(PreProcessor preProcessor) => runtimePreProcessors.Remove(preProcessor);
@@ -46,21 +48,51 @@ public abstract class Operation : ScriptableObject
         subOperation.BreakLinkage(this);
     }
     
-    protected void Begin(object args, params Object[] parameters) => OnBeginning?.Invoke(args, parameters);
-    protected void Perform(object args, params Object[] parameters) => OnPerformed?.Invoke(args, parameters);
-    protected void End(object args, params Object[] parameters) => OnEnd?.Invoke(args, parameters);
+    public void Begin(object args, params Object[] parameters)
+    {
+        foreach (var preProcessor in PreProcessors) preProcessor.Affect(this);
+        OnBegan?.Invoke(args, parameters);
+        
+        AtStart(args, parameters);
+        
+        foreach (var preProcessor in PreProcessors.Reverse()) preProcessor.UndoFor(this);
+    }
+    protected abstract void AtStart(object args, params Object[] parameters);
+
+    public void Perform(object args, params Object[] parameters)
+    {
+        foreach (var preProcessor in PreProcessors) preProcessor.Affect(this);
+        
+        During(args, parameters);
+        
+        OnPerformed?.Invoke(args, parameters);
+        foreach (var preProcessor in PreProcessors.Reverse()) preProcessor.UndoFor(this);
+    }
+    protected abstract void During(object args, params Object[] parameters);
+
+    public void End(object args, params Object[] parameters)
+    {
+        foreach (var preProcessor in PreProcessors) preProcessor.Affect(this);
+        
+        AtEnd(args, parameters);
+        
+        OnEnd?.Invoke(args, parameters);
+        foreach (var preProcessor in PreProcessors.Reverse()) preProcessor.UndoFor(this);
+    }
+    protected abstract void AtEnd(object args, params Object[] parameters);
 }
 public abstract class Operation<TArgs, TSource> : Operation where TSource : OperationHandler
 {
     protected TSource source;
 
     public override void SetSource(OperationHandler source) => this.source = (TSource)source;
-    public override void Execute(object args, params Object[] parameters)
-    {
-        foreach (var preProcessor in PreProcessors) preProcessor.Affect(this);
-        Execute((TArgs)args, parameters);
-        foreach (var preProcessor in PreProcessors.Reverse()) preProcessor.UndoFor(this);
-    }
 
-    protected abstract void Execute(TArgs args, Object[] parameters);
+    protected override void AtStart(object args, params Object[] parameters) => AtStart((TArgs) args, parameters);
+    protected virtual void AtStart(TArgs args, Object[] parameters) { }
+    
+    protected override void During(object args, params Object[] parameters) => During((TArgs) args, parameters);
+    protected virtual void During(TArgs args, Object[] parameters) { }
+    
+    protected override void AtEnd(object args, params Object[] parameters) => AtEnd((TArgs) args, parameters);
+    protected virtual void AtEnd(TArgs args, Object[] parameters) { }
 }

@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f1f61917f6e4cafbcd3e4a3d5e390d5, type: 3}
+  m_Name: MuzzleFlash-Standard
+  m_EditorClassIdentifier: 
+  effectPoolToken: {fileID: 11400000, guid: 533a8d06291d11c4a9758345fd9aa308, type: 2}
+  muzzleFlashPrefab: {fileID: 8696923418797748402, guid: e0b2b50d9fce8624987274886a4f0774,
+    type: 3}
