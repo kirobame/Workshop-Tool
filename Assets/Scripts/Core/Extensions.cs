@@ -9,4 +9,12 @@ public static class Extensions
         color.a = alpha;
         return color;
     }
+
+    public static Rect Enlarge(this Rect rect, float amount)
+    {
+        rect.position -= Vector2.one * amount;
+        rect.size += Vector2.one * amount;
+
+        return rect;
+    }
 }

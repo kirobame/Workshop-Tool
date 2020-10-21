@@ -419,7 +419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &167962464
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1346,7 +1346,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 0}
-  m_Color: {r: 0.16470589, g: 0.16470589, b: 0.16470589, a: 1}
+  m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -3729,6 +3729,11 @@ PrefabInstance:
       propertyPath: links.Array.data[2].operands.Array.data[0].parameters.Array.data[0]
       value: 
       objectReference: {fileID: 5357769578862419219}
+    - target: {fileID: 2266793599642734914, guid: 484da69caf81b124d828c8201aadd88e,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a260213968ed1494cbac8b5161dcb39c, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 484da69caf81b124d828c8201aadd88e, type: 3}
 --- !u!4 &5357769578862419219 stripped
