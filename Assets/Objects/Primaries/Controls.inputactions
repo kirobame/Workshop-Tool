@@ -22,12 +22,44 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Fire",
+                    "name": "Left Stick",
+                    "type": "Value",
+                    "id": "5545c850-e361-479e-b5b9-7fe6e20d9724",
+                    "expectedControlType": "Stick",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Right Stick",
+                    "type": "Value",
+                    "id": "d20bacb3-1e9c-46d7-8e69-3ad9eff97004",
+                    "expectedControlType": "Stick",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Keyboard-Standard",
                     "type": "Button",
-                    "id": "f5631eca-4706-479f-8c8d-87bde333cc9e",
+                    "id": "2f95e576-5dee-4a86-a223-bde00697c3ca",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Press(behavior=1)"
+                    "interactions": ""
+                },
+                {
+                    "name": "Keyboard-Plasma",
+                    "type": "Button",
+                    "id": "1ac4e5b3-5e20-4a4b-aecc-ea6a93ca6480",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Keyboard-Laser",
+                    "type": "Button",
+                    "id": "966a75db-f3be-4f23-a8ed-4154c938dc6c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -142,6 +174,61 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "Gamepad",
+                    "id": "5f3033aa-eff4-4efa-af28-53f11de4dd1c",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "755850bb-924d-4eac-b067-a55b3ad22cbe",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "20365e4f-1fd8-4edc-87b9-aea80922a89e",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "d4bad445-135d-461d-a663-fe449669aa20",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "1931aecb-35c1-413f-a8a3-7d324a29291c",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "1e9d314a-ce3f-4bb7-a83f-d6ac41b3e98a",
                     "path": "<Mouse>/position",
@@ -154,12 +241,94 @@
                 },
                 {
                     "name": "",
-                    "id": "3680ad15-1463-4e20-a9bc-c0bbfc695ec8",
-                    "path": "<Mouse>/leftButton",
+                    "id": "013e43a8-f65e-4507-81ac-d53c9405d1ea",
+                    "path": "<Gamepad>/leftStick",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Fire",
+                    "action": "Left Stick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "01c0e46a-24e1-4f0d-a042-6480710e7849",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right Stick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fb5a542e-a898-4708-b7df-5232acc2f3ab",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Keyboard-Standard",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "771eceaa-88c5-44b5-bdeb-ed08b9417ce3",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Keyboard-Plasma",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2e081a02-77ab-47f9-a718-715f2952a0e3",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Keyboard-Laser",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "UI",
+            "id": "b9d092ce-5ef9-47c4-be06-782fb9eca8b6",
+            "actions": [
+                {
+                    "name": "MenuToggle",
+                    "type": "Button",
+                    "id": "19595d78-91b5-420e-85d1-eb3303b8ecb4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "462eda48-0f90-4e0f-b0ff-e403002d37e2",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3fd4474c-3bf0-45f7-abe5-4f6d5305119a",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

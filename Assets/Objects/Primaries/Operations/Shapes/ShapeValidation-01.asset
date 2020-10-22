@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c5bccdd3b647f4a9310b9e93f38723, type: 3}
+  m_Name: ShapeValidation-01
+  m_EditorClassIdentifier: 
+  preProcessors: []
+  phase: 2
+  subOperations:
+  - value: {fileID: 11400000, guid: 584f699687b2c954e869643ad8a1b554, type: 2}
+    overridingPhase: 0
+  shape: {fileID: 11400000, guid: aaa717d564ac212438977357ea3ec18c, type: 2}

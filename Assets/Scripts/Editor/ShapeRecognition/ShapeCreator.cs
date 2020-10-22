@@ -7,6 +7,16 @@ using UnityEngine;
 
 public class ShapeCreator : EditorWindow
 {
+    #region Encapsulated Types
+
+    private enum SelectionMode
+    {
+        Anchor,
+        Tangent,
+        ErrorRadius
+    }
+    #endregion
+    
     private const int desiredSize = 12;
     private const int subDivision = 5;
     private const int areaRadius = 5;
@@ -36,24 +46,55 @@ public class ShapeCreator : EditorWindow
     private readonly Color standard = new Color(0.2196079f, 0.2196079f, 0.2196079f);
     private readonly Vector4 padding = new Vector4(4,4,4,4);
     
+   
+    
     [MenuItem("Tools/Custom/Shape Creator")]
-    static void OpenWindow()
-    {
-        GetWindow<ShapeCreator>().Show();
-        shape = CreateInstance<Shape>();
-    }
-
+    static void OpenWindow() => GetWindow<ShapeCreator>().Show();
+    
     private Texture gridTexture;
+    
+    private bool isExpanded;
+    private int informationHeight;
+    private float lineHeight;
 
     private Rect area;
     private float unit;
     private float radius;
 
-    private List<int> selection = new List<int>();
-    private List<Tangent> currentTangents = new List<Tangent>();
+    private int selection;
+    private SelectionMode mode;
     private bool isDragging;
 
-    void OnEnable() => gridTexture = Resources.Load<Texture2D>("Grid");
+    private List<Tangent> currentTangents;
+    
+    void OnEnable()
+    {
+        shape = null;
+
+        informationHeight = 1;
+        selection = -42;
+        currentTangents = new List<Tangent>();
+        lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+        
+        gridTexture = Resources.Load<Texture2D>("Grid");
+        if (Selection.activeObject is Shape activeShape) shape = activeShape;
+
+        Undo.undoRedoPerformed += UndoRedo;
+    }
+
+    void OnSelectionChange()
+    {
+        if (Selection.activeObject is Shape activeShape)
+        {
+            shape = activeShape;
+            Repaint();
+        }
+    }
+    void UndoRedo()
+    {
+        currentTangents.Clear();
+        Repaint();
+    }
 
     void OnGUI()
     {
@@ -61,43 +102,25 @@ public class ShapeCreator : EditorWindow
         DrawBackground();
         
         Handles.BeginGUI();
-        
         DrawDiscs();
-        DrawBorders();
-        
-        if (currentTangents.Any()) DrawTangents();
-        DrawBezier();
 
+        if (shape != null)
+        {
+            if (currentTangents.Any()) DrawTangents();
+            DrawBezier();
+        }
+        
+        DrawBorders();
         Handles.EndGUI();
+
+        if (shape == null) return;
         
         var Ev = Event.current;
-        if (Ev.isMouse)
-        {
-            if (Ev.type == EventType.MouseDrag)
-            {
-                isDragging = true;
-                var delta = Ev.delta / radius;
-
-                foreach (var point in selection)
-                {
-                    var position = Translate(shape.Points[point]);
-                    if (Vector2.Distance(position + delta * 2, area.center) >= radius && Vector2.Dot((area.center - position).normalized, delta.normalized) < 0) continue;
-                    
-                    shape.MovePoint(point, new Vector2(delta.x, -delta.y));
-                }
-                
-                Repaint();
-                Ev.Use();
-            }
-
-            if (Ev.button == 0 && Ev.type == EventType.MouseUp)
-            {
-                isDragging = false;
-                selection.Clear();
-                
-                Ev.Use();
-            }
-        }
+        if (Ev.isMouse) ProcessMouse(Ev);
+        if (Ev.type == EventType.KeyDown && Ev.keyCode == KeyCode.A) AddSection(Ev);
+        if (Ev.type == EventType.KeyDown && Ev.keyCode == KeyCode.I) InsertSection(Ev);
+        if (Ev.type == EventType.KeyDown && Ev.keyCode == KeyCode.C) ClearSelection();
+        if (mode == SelectionMode.Anchor && Ev.type == EventType.KeyDown && Ev.keyCode == KeyCode.Delete) DeleteSection();
     }
 
     private void Setup()
@@ -144,24 +167,27 @@ public class ShapeCreator : EditorWindow
 
         var layout = position;
         layout.position = Vector2.zero;
-        
+
         Handles.color = lineShades[0];
+        
+        var displacement = new Vector2(0, lineHeight * informationHeight);
+        var topRect = new Rect(layout.position, new Vector2(layout.width, padding.z) + displacement);
+        EditorGUI.DrawRect(topRect, standard);
+        Handles.DrawLine(area.min + displacement, bottomRight + displacement);
+
+        DrawFoldout(topRect);
         
         var bottomRect = new Rect(new Vector2(layout.x, layout.height - padding.w), new Vector2(layout.width, padding.w));
         EditorGUI.DrawRect(bottomRect, standard);
-        Handles.DrawLine(area.min, bottomRight);
+        Handles.DrawLine(area.max, topLeft);
         
         var rightRect = new Rect(new Vector2(layout.width - padding.y, layout.y), new Vector2(padding.y, layout.height));
         EditorGUI.DrawRect(rightRect, standard);
-        Handles.DrawLine(bottomRight, area.max);
-        
-        var topRect = new Rect(layout.position, new Vector2(layout.width, padding.z));
-        EditorGUI.DrawRect(topRect, standard);
-        Handles.DrawLine(area.max, topLeft);
+        Handles.DrawLine(bottomRight + displacement, area.max);
         
         var leftRect = new Rect(layout.position, new Vector2(padding.x, layout.height));
         EditorGUI.DrawRect(leftRect, standard);
-        Handles.DrawLine(topLeft, area.min);
+        Handles.DrawLine(topLeft, area.min + displacement);
     }
     private void DrawDiscs()
     {
@@ -171,8 +197,44 @@ public class ShapeCreator : EditorWindow
         Handles.color = lineShades[0];
         Handles.DrawWireDisc(area.center, Vector3.forward, radius);
     }
+
+    private void DrawFoldout(Rect rect)
+    {
+        rect = new Rect(rect.position + new Vector2(padding.x, padding.z * 0.5f), new Vector2(position.width - padding.y * 2, lineHeight));
+        
+        var lastState = isExpanded;
+        isExpanded = EditorGUI.Foldout(rect, isExpanded, new GUIContent("Information"));
+
+        if (lastState == true && isExpanded == false) informationHeight = 1;
+        else if (lastState == false && isExpanded == true) informationHeight = 6;
+        
+        if (!isExpanded) return;
+
+        rect.y += lineHeight;
+
+        GUI.enabled = false;
+        EditorGUI.ObjectField(rect, shape, typeof(Shape), true);
+        GUI.enabled = true;
+        
+        var style = new GUIStyle(EditorStyles.label);
+        style.richText = true;
+        
+        rect.y += lineHeight;
+        EditorGUI.LabelField(rect, new GUIContent("<b>Add new anchor</b> : A"), style);
+        
+        rect.y += lineHeight;
+        EditorGUI.LabelField(rect, new GUIContent("<b>Insert new anchor between closest anchors</b> : I"), style);
+        
+        rect.y += lineHeight;
+        EditorGUI.LabelField(rect, new GUIContent("<b>Clear selection</b> : C"), style);
+        
+        rect.y += lineHeight;
+        EditorGUI.LabelField(rect, new GUIContent("<b>Delete selected anchor</b> : Del"), style);
+    }
     #endregion
-    
+
+    #region Bezier
+
     private void DrawBezier()
     {
         for (var i = 0; i < shape.Points.Count; i += 3)
@@ -188,31 +250,76 @@ public class ShapeCreator : EditorWindow
                 Handles.DrawBezier(p1,p4,p2,p3, bezierShades[0], null, bezierWidth);
             }
 
-            var color = selection.Contains(i) ? Color.blue : bezierShades[1];
-            if (DrawButtonFor(p1, 5f, color))
+            var color = bezierShades[1];
+            if (i == selection)
             {
-                selection.Add(i);
-
-                currentTangents.Clear();
-                if (i + 1 == shape.Points.Count)
-                {
-                    currentTangents.Add(new Tangent(i - 1, -1));
-                    currentTangents.Add(new Tangent(-1, i - 2));
-                }
-                else if (i == 0)
-                {
-                    currentTangents.Add(new Tangent(-1, i + 1));
-                    currentTangents.Add(new Tangent(i + 2, -1));
-                }
-                else
-                {
-                    currentTangents.Add(new Tangent(i - 1, i + 1));
-                    currentTangents.Add(new Tangent(-1, i - 2));
-                    currentTangents.Add(new Tangent(i + 2, -1));
-                }
+                color = Color.green;
+                DrawErrorRadius(p1, i);
             }
+            else if (i == selection - 3 || i == selection + 3) color = Color.magenta;
+            
+            if (DrawButtonFor(p1, 5f, color)) SetupTangents(i);
         }
     }
+    private void DrawErrorRadius(Vector2 point, int index)
+    {
+        var perpendicular = Vector2.zero;
+        if (index + 1 == shape.Points.Count)
+        {
+            var p2 = Translate(shape.Points[index-1]);
+            var p3 = Translate(shape.Points[index-2]);
+            var p4 = Translate(shape.Points[index-3]);
+                    
+            var velocity = Bezier.GetVelocity(point, p2, p3, p4, 0f);
+            perpendicular = Vector2.Perpendicular(velocity);
+        }
+        else
+        {
+            var p2 = Translate(shape.Points[index+1]);
+            var p3 = Translate(shape.Points[index+2]);
+            var p4 = Translate(shape.Points[index+3]);
+                    
+            var velocity = Bezier.GetVelocity(point, p2, p3, p4, 0f);
+            perpendicular = Vector2.Perpendicular(velocity);
+        }
+
+        var errorRadius = shape.Points[index].errorRadius * radius;
+        perpendicular = point + perpendicular.normalized * errorRadius;
+        
+        Handles.color = Color.cyan;
+        Handles.DrawLine(point, perpendicular);
+        Handles.DrawWireDisc(point, Vector3.forward, errorRadius);
+
+        if (DrawButtonFor(perpendicular, 3f, Color.cyan))
+        {
+            selection = index;
+            mode = SelectionMode.ErrorRadius;
+        }
+    }
+    private void SetupTangents(int index)
+    {
+        selection = index;
+        mode = SelectionMode.Anchor;
+
+        currentTangents.Clear();
+        if (index + 1 == shape.Points.Count)
+        {
+            currentTangents.Add(new Tangent(index - 1, -1));
+            currentTangents.Add(new Tangent(-1, index - 2));
+        }
+        else if (index == 0)
+        {
+            currentTangents.Add(new Tangent(-1, index + 1));
+            currentTangents.Add(new Tangent(index + 2, -1));
+        }
+        else
+        {
+            currentTangents.Add(new Tangent(index - 1, index + 1));
+            currentTangents.Add(new Tangent(-1, index - 2));
+            currentTangents.Add(new Tangent(index + 2, -1));
+        }
+    }
+
     private void DrawTangents()
     {
         foreach (var tangent in currentTangents)
@@ -228,11 +335,15 @@ public class ShapeCreator : EditorWindow
             var point = Translate(shape.Points[index]);
             Handles.DrawLine(point, Translate(shape.Points[index + direction]));
 
-            var color = selection.Contains(index) ? Color.blue : bezierShades[2];
-            if (DrawButtonFor(point, 3f, color)) selection.Add(index);
+            var color = index == selection ? Color.green : bezierShades[2];
+            if (DrawButtonFor(point, 3f, color))
+            {
+                selection = index;
+                mode = SelectionMode.Tangent;
+            }
         }
     }
-    
+
     private bool DrawButtonFor(Vector2 point, float size, Color color)
     {
         var buttonSize = size * Vector2.one;
@@ -252,5 +363,138 @@ public class ShapeCreator : EditorWindow
 
         return false;
     }
-    private Vector2 Translate(Vector2 point) => area.center + new Vector2(point.x, -point.y) * radius;
+    #endregion
+
+    #region Processing
+
+    private void ProcessMouse(Event Ev)
+    {
+        if (selection != -42 && Ev.type == EventType.MouseDrag)
+        {
+            isDragging = true;
+
+            if (mode == SelectionMode.ErrorRadius)
+            {
+                var position = Translate(shape.Points[selection]);
+                var errorRadius = (Ev.mousePosition - position).magnitude / radius;
+                
+                Undo.RecordObject(shape, $"{shape.GetInstanceID()} Setting Error Radius {selection}");
+                shape.SetPointErrorRadius(selection, errorRadius);
+            }
+            else if (mode == SelectionMode.Tangent || Vector2.Distance(Ev.mousePosition, area.center) < radius)
+            {
+                var allowedArea = area.Enlarge(-10f);
+                var mousePosition = Ev.mousePosition;
+
+                mousePosition.x = Mathf.Clamp(mousePosition.x, allowedArea.xMin, allowedArea.xMax);
+                mousePosition.y = Mathf.Clamp(mousePosition.y, allowedArea.yMin, allowedArea.yMax);
+                
+                Undo.RecordObject(shape, $"{shape.GetInstanceID()} Moving Point {selection}");
+                shape.SetPointPosition(selection, Translate(mousePosition));
+            }
+            else
+            {
+                var goal = (Ev.mousePosition - area.center).normalized * radius / radius;
+                
+                Undo.RecordObject(shape, $"{shape.GetInstanceID()} Moving Point {selection}");
+                shape.SetPointPosition(selection, new Vector2(goal.x, -goal.y));
+            }
+
+            Repaint();
+            Ev.Use();
+        }
+
+        if (Ev.button == 0 && Ev.type == EventType.MouseUp)
+        {
+            isDragging = false;
+            Ev.Use();
+        }
+    }
+    
+    private void AddSection(Event Ev)
+    {
+        var destination = Vector2.zero;
+        if (Vector2.Distance(Ev.mousePosition, area.center) >= radius)
+        {
+            var goal = (Ev.mousePosition - area.center).normalized * radius / radius;
+            destination = new Vector2(goal.x, -goal.y);
+        }
+        else destination = Translate(Ev.mousePosition);
+      
+        Undo.RecordObject(shape, $"{shape.GetInstanceID()} Adding Section");
+        shape.AddNewSection(destination);
+        
+        Repaint();
+    }
+    private void InsertSection(Event Ev)
+    {
+        var mousePosition = Translate(Ev.mousePosition);
+        
+        var firstClosest = float.PositiveInfinity;
+        var firstClosestIndex = -1;
+
+        var secondClosest = float.PositiveInfinity;
+        var secondClosestIndex = -1;
+
+        for (var i = 0; i < shape.Points.Count; i++)
+        {
+            if (i % 3 != 0) continue;
+            var distance = Vector2.Distance(mousePosition, shape.Points[i].position);
+
+            if (distance < firstClosest)
+            {
+                secondClosest = firstClosest;
+                secondClosestIndex = firstClosestIndex;
+                
+                firstClosest = distance;
+                firstClosestIndex = i;
+            }
+            else if (distance < secondClosest)
+            {
+                secondClosest = distance;
+                secondClosestIndex = i;
+            }
+        }
+        
+        var from = Mathf.Min(firstClosestIndex, secondClosestIndex);
+        
+        Undo.RecordObject(shape, $"{shape.GetInstanceID()} Inserting section at {from}");
+        shape.InsertNewSection(mousePosition, from);
+        
+        Repaint();
+    }
+    private void DeleteSection()
+    {
+        if (selection != -42 && shape.Points.Count == 4) return;
+        
+        Undo.RecordObject(shape, $"{shape.GetInstanceID()} Deleting section at {selection}");
+        shape.DeleteSection(selection);
+        
+        currentTangents.Clear();
+        ClearSelection();
+        
+        Repaint();
+    }
+
+    private void ClearSelection()
+    {
+        currentTangents.Clear();
+        
+        isDragging = false;
+        selection = -42;
+        
+        Repaint();
+    }
+    #endregion
+    
+    private Vector2 Translate(Point point)
+    {
+        var position = point.position;
+        return area.center + new Vector2(position.x, -position.y) * radius;
+    }
+    private Vector2 Translate(Vector2 screenPoint)
+    {
+        var position = (screenPoint - area.center) / radius;
+        return new Vector2(position.x, -position.y);
+    }
 }

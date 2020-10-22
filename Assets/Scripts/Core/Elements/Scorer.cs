@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Scorer : MonoBehaviour, IHittable
+public class Scorer : MonoBehaviour, IHittable, IResetable
 {
     public bool HasAlreadyBeenHit => hasAlreadyBeenHit;
 
@@ -10,6 +10,8 @@ public class Scorer : MonoBehaviour, IHittable
     [SerializeField] private CoreData data;
     
     [Space, SerializeField] private Token acceptedToken;
+    
+    [SerializeField] private UnityEvent onReset;
     [SerializeField] private UnityEvent onScored;
     
     protected bool hasAlreadyBeenHit;
@@ -41,5 +43,11 @@ public class Scorer : MonoBehaviour, IHittable
         }
 
         return false;
+    }
+    
+    public virtual void Reset()
+    {
+        hasAlreadyBeenHit = false;   
+        onReset.Invoke();
     }
 }

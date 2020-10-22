@@ -15,7 +15,7 @@ public abstract class Operation : ScriptableObject
     
     [SerializeField] private PreProcessor[] preProcessors;
     [SerializeField] private OperationPhase phase;
-    [SerializeField] private List<SubOperation> subOperations;
+    [SerializeField] protected List<SubOperation> subOperations;
 
     protected IEnumerable<PreProcessor> PreProcessors => runtimePreProcessors;
     private HashSet<PreProcessor> runtimePreProcessors;
@@ -51,10 +51,7 @@ public abstract class Operation : ScriptableObject
     public void Begin(object args, params Object[] parameters)
     {
         foreach (var preProcessor in PreProcessors) preProcessor.Affect(this);
-        OnBegan?.Invoke(args, parameters);
-        
         AtStart(args, parameters);
-        
         foreach (var preProcessor in PreProcessors.Reverse()) preProcessor.UndoFor(this);
     }
     protected abstract void AtStart(object args, params Object[] parameters);
@@ -62,10 +59,7 @@ public abstract class Operation : ScriptableObject
     public void Perform(object args, params Object[] parameters)
     {
         foreach (var preProcessor in PreProcessors) preProcessor.Affect(this);
-        
         During(args, parameters);
-        
-        OnPerformed?.Invoke(args, parameters);
         foreach (var preProcessor in PreProcessors.Reverse()) preProcessor.UndoFor(this);
     }
     protected abstract void During(object args, params Object[] parameters);
@@ -73,19 +67,24 @@ public abstract class Operation : ScriptableObject
     public void End(object args, params Object[] parameters)
     {
         foreach (var preProcessor in PreProcessors) preProcessor.Affect(this);
-        
         AtEnd(args, parameters);
-        
-        OnEnd?.Invoke(args, parameters);
         foreach (var preProcessor in PreProcessors.Reverse()) preProcessor.UndoFor(this);
     }
     protected abstract void AtEnd(object args, params Object[] parameters);
+
+    protected void CallStart(object args, params Object[] parameters) => OnBegan?.Invoke(args, parameters);
+    protected void CallPerform(object args, params Object[] parameters) => OnPerformed?.Invoke(args, parameters);
+    protected void CallEnd(object args, params Object[] parameters) => OnEnd?.Invoke(args, parameters);
 }
 public abstract class Operation<TArgs, TSource> : Operation where TSource : OperationHandler
 {
     protected TSource source;
 
-    public override void SetSource(OperationHandler source) => this.source = (TSource)source;
+    public override void SetSource(OperationHandler source)
+    {
+        this.source = (TSource) source;
+        foreach (var subOperation in subOperations) subOperation.Value.SetSource(source);
+    }
 
     protected override void AtStart(object args, params Object[] parameters) => AtStart((TArgs) args, parameters);
     protected virtual void AtStart(TArgs args, Object[] parameters) { }

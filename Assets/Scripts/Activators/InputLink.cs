@@ -24,6 +24,7 @@ public class InputLink
     public void Initialize()
     {
         runtimeActivator = Object.Instantiate(activator);
+        runtimeActivator.Initialize();
 
         runtimeOperands = new HashSet<Operand>();
         foreach (var operand in operands)

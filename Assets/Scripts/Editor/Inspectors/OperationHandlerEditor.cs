@@ -126,8 +126,12 @@ public class OperationHandlerEditor : Editor
             
             operandsProperty.isExpanded = EditorGUILayout.Foldout(operandsProperty.isExpanded, new GUIContent("Operands"));
             DrawSeparation(new Vector2(80f,0f), size * 0.5f, false);
-            
-            if (!operandsProperty.isExpanded) return;
+
+            if (!operandsProperty.isExpanded)
+            {
+                EndDrawLink(linksProperty, i);
+                continue;
+            }
             EditorGUI.indentLevel++;
             
             layoutRect = GUILayoutUtility.GetLastRect();

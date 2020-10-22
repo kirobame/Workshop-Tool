@@ -12,13 +12,14 @@ public class RoomHandler : MonoBehaviour
     [SerializeField] private float activationDelay;
     [SerializeField] private Interpreter[] interpreters;
 
+    [SerializeField] private UnityEvent onEnd;
     [SerializeField] private UnityEvent onDeactivation;
     [SerializeField] private UnityEvent onActivation;
 
     private Room[] rooms;
     private Dictionary<string,Interpreter> registry = new Dictionary<string,Interpreter>();
 
-    private int advancement;
+    private int advancement = -1;
     
     void Awake()
     {
@@ -59,27 +60,32 @@ public class RoomHandler : MonoBehaviour
         ActivateNext();
     }
 
-    public void ActivateNext() => StartCoroutine(ActivationRoutine());
-    private IEnumerator ActivationRoutine()
+    public void ActivateSpecific(int index)
     {
-        if (advancement > 0) onDeactivation.Invoke();
+        StartCoroutine(ActivationRoutine(false, index));
+    }
+    
+    public void ActivateNext() => StartCoroutine(ActivationRoutine(true, advancement + 1));
+    private IEnumerator ActivationRoutine(bool safety, int newAdvancement)
+    {
+        if (!safety || advancement >= 0) onDeactivation.Invoke();
         yield return new WaitForSeconds(activationDelay);
 
-        if (advancement > 0) rooms[advancement - 1].gameObject.SetActive(false);
+        if (advancement >= 0 && advancement < rooms.Length) rooms[advancement].gameObject.SetActive(false);
 
-        if (advancement >= rooms.Length)
+        if (newAdvancement >= rooms.Length)
         {
-            Debug.Log("End !");
+            onEnd.Invoke();
             yield break;
         }
         
-        var room = rooms[advancement];
+        var room = rooms[newAdvancement];
         room.Activate();
         
         ground.localScale = new Vector3(room.Sheet.Size.x * cellSize.x, 100, room.Sheet.Size.y * cellSize.y);
         ground.position = new Vector3(-cellSize.x * 0.5f,-100,-cellSize.y * 0.5f);
 
         onActivation.Invoke();
-        advancement++;
+        advancement = newAdvancement;
     }
 }

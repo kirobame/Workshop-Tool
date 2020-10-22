@@ -8,12 +8,12 @@ public abstract class Fader : MonoBehaviour
 
     private Coroutine routine;
 
-    public void FadeIn()
+    public virtual void FadeIn()
     {
         HandleInterruption();
         routine = StartCoroutine(FadeRoutine(fadeInCurve, new Vector2(0f,1f), times.x));
     }
-    public void FadeOut()
+    public virtual void  FadeOut()
     {
         HandleInterruption();
         routine = StartCoroutine(FadeRoutine(fadeOutCurve, new Vector2(1,0f), times.y));

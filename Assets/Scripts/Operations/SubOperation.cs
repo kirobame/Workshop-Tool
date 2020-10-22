@@ -10,6 +10,8 @@ public class SubOperation : IEquatable<SubOperation>
         value = source;
         this.overridingPhase = this.overridingPhase;
     }
+
+    public Operation Value => runtimeValue;
     
     [SerializeField] private Operation value;
     [SerializeField] private OperationPhase overridingPhase;
@@ -26,6 +28,7 @@ public class SubOperation : IEquatable<SubOperation>
         endAction = (args, parameters) => runtimeValue.End(args, parameters);
         
         runtimeValue = Object.Instantiate(value);
+        runtimeValue.Initialize();
 
         var phase = overridingPhase == OperationPhase.None ? value.Phase : overridingPhase;
         

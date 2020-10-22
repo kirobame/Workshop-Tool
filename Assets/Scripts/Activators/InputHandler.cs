@@ -40,4 +40,12 @@ public class InputHandler : MonoBehaviour
         asset.Disable();
         foreach (var link in links) asset.FindActionMap(link.Name).Disable();
     }
+
+    public void SetActiveMap(string mapName, bool value)
+    {
+        var map = asset.FindActionMap(mapName);
+        
+        if (value == true) map.Enable();
+        else map.Disable();
+    }
 }

@@ -7,13 +7,12 @@ public class Enemy : Scorer
     public static event Action OnCountChanged;
     
     public static int Count { get; private set; }
-
-    void OnEnable()
+    public static void SetCount(int value)
     {
-        Count++;
+        Count = value;
         OnCountChanged?.Invoke();
     }
-
+    
     public override bool Hit(Bullet bullet, RaycastHit hit)
     {
         if (base.Hit(bullet, hit))
@@ -27,5 +26,13 @@ public class Enemy : Scorer
         }
 
         return false;
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+        
+        Count++;
+        OnCountChanged?.Invoke();
     }
 }

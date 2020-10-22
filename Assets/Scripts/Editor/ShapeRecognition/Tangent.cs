@@ -30,4 +30,6 @@
         index = -1;
         return false;
     }
+
+    public override string ToString() => $"{first} / {second}";
 }

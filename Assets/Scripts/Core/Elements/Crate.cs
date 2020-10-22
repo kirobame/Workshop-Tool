@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
-public class Crate : MonoBehaviour, IHittable
+public class Crate : MonoBehaviour, IHittable, IResetable
 {
     public bool HasAlreadyBeenHit => hasAlreadyBeenHit;
 
     [SerializeField] private Token acceptedToken;
+    
+    [SerializeField] private UnityEvent onReset;
     [SerializeField] private UnityEvent onHit;
     
     private bool hasAlreadyBeenHit;
@@ -23,5 +25,11 @@ public class Crate : MonoBehaviour, IHittable
         }
 
         return false;
+    }
+    
+    void IResetable.Reset()
+    {
+        hasAlreadyBeenHit = false;
+        onReset.Invoke();
     }
 }

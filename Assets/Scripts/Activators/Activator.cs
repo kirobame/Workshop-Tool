@@ -12,6 +12,8 @@ public abstract class Activator : ScriptableObject
     
     protected InputAction currentInput;
 
+    public virtual void Initialize() { }
+    
     public virtual void Bind(InputAction input)
     {
         if (currentInput != null) Unbind();
