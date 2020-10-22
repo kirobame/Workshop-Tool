@@ -10,6 +10,7 @@ public class Scorer : MonoBehaviour, IHittable, IResetable
     [SerializeField] private CoreData data;
     
     [Space, SerializeField] private Token acceptedToken;
+    [SerializeField] private AudioEffect soundEffect;
     
     [SerializeField] private UnityEvent onReset;
     [SerializeField] private UnityEvent onScored;
@@ -38,6 +39,8 @@ public class Scorer : MonoBehaviour, IHittable, IResetable
             Score.ModifyBy(scoreValue);
             onScored.Invoke();
 
+            soundEffect.Play(0);
+            
             hasAlreadyBeenHit = true;
             return true;
         }

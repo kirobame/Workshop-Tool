@@ -10,6 +10,8 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float speed;
     [SerializeField] private LayerMask collisionMask;
 
+    [Space, SerializeField] private AudioEffect soundEffect;
+    
     [SerializeField] private UnityEvent onFire;
     [SerializeField] private HitEvent onHit;
 
@@ -45,7 +47,8 @@ public class Bullet : MonoBehaviour
             lifetimeRoutine = null;
 
             StartCoroutine(KillRoutine(disappearanceTime));
-
+            soundEffect.Play(0);
+            
             var hittable = hit.transform.GetComponent<IHittable>();
             hittable?.Hit(this, hit);
 

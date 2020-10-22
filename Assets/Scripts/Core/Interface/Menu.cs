@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 
 public class Menu : MonoBehaviour
@@ -6,6 +7,9 @@ public class Menu : MonoBehaviour
     [SerializeField] private GameObject target;
     [SerializeField] private Token roomHandlerToken;
     [SerializeField] private Token inputHandlerToken;
+
+    [Space, SerializeField] private AudioEffect soundEffect;
+    [SerializeField] private AudioMixerSnapshot musicOn, musicOff;
 
     private bool state;
     
@@ -19,7 +23,9 @@ public class Menu : MonoBehaviour
             Time.timeScale = 0f;
 
             inputHandler.SetActiveMap("Standard", false);
+            soundEffect.Play(0);
             
+            musicOff.TransitionTo(1f);
             state = true;
         }
         else
@@ -28,7 +34,9 @@ public class Menu : MonoBehaviour
             Time.timeScale = 1f;
 
             inputHandler.SetActiveMap("Standard", true);
+            soundEffect.Play(1);
             
+            musicOn.TransitionTo(1f);
             state = false;
         }
     }
@@ -43,6 +51,9 @@ public class Menu : MonoBehaviour
         
         target.SetActive(false);
         Time.timeScale = 1f;
+        
+        musicOn.TransitionTo(1f);
+        soundEffect.Play(2);
         
         var roomHandler = Repository.GetFirst<RoomHandler>(roomHandlerToken);
         roomHandler.ActivateSpecific(0);

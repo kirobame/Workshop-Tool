@@ -13951,6 +13951,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   roomHandlerToken: {fileID: 11400000, guid: 3d6ece135f68efe4bb88d2055d74ef33, type: 2}
+  soundEffect:
+    audioPoolToken: {fileID: 11400000, guid: 74cc6c4fa48367a4595072288516a375, type: 2}
+    templates:
+    - {fileID: 5751441407967184998, guid: ab24a9b408a90634583c2078614f0185, type: 3}
   onReset:
     m_PersistentCalls:
       m_Calls:

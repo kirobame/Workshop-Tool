@@ -23470,6 +23470,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   acceptedToken: {fileID: 11400000, guid: a0cc9ce6916ce5745afda9e38375ae1b, type: 2}
+  soundEffect:
+    audioPoolToken: {fileID: 11400000, guid: 74cc6c4fa48367a4595072288516a375, type: 2}
+    templates:
+    - {fileID: 4529252844492165329, guid: 9aeac30f17f6645459dc1edc98224b82, type: 3}
   onReset:
     m_PersistentCalls:
       m_Calls:

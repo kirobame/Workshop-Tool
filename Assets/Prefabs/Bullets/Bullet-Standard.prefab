@@ -61557,6 +61557,10 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  soundEffect:
+    audioPoolToken: {fileID: 11400000, guid: 74cc6c4fa48367a4595072288516a375, type: 2}
+    templates:
+    - {fileID: 7410936563140393035, guid: 470831f4fd2f9414cbd461c3e502c590, type: 3}
   onFire:
     m_PersistentCalls:
       m_Calls:

@@ -6,6 +6,7 @@ public class Crate : MonoBehaviour, IHittable, IResetable
     public bool HasAlreadyBeenHit => hasAlreadyBeenHit;
 
     [SerializeField] private Token acceptedToken;
+    [SerializeField] private AudioEffect soundEffect;
     
     [SerializeField] private UnityEvent onReset;
     [SerializeField] private UnityEvent onHit;
@@ -20,6 +21,8 @@ public class Crate : MonoBehaviour, IHittable, IResetable
         {
             hasAlreadyBeenHit = true;
             onHit.Invoke();
+            
+            soundEffect.Play(0);
 
             return true;
         }

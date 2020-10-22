@@ -20,3 +20,7 @@ MonoBehaviour:
     type: 3}
   muzzleFlashEffect: {fileID: 11400000, guid: 769b0459d0f88804f89234a2596bf317, type: 2}
   angleOffset: 0
+  soundEffect:
+    audioPoolToken: {fileID: 11400000, guid: 74cc6c4fa48367a4595072288516a375, type: 2}
+    templates:
+    - {fileID: 1454322445012114411, guid: 56e31e1bde9272e49b0a54112998ae3b, type: 3}

@@ -11,6 +11,8 @@ public class FireOperation : Operation<Null, OperationHandler>
     [SerializeField] private MuzzleFlashEffect muzzleFlashEffect;
     [SerializeField] private float angleOffset;
 
+    [Space, SerializeField] private AudioEffect soundEffect;
+
     protected override void During(Null args, Object[] parameters)
     {
         var pool = Repository.GetFirst<BulletPool>(bulletPoolToken);
@@ -23,6 +25,7 @@ public class FireOperation : Operation<Null, OperationHandler>
         var direction = Quaternion.AngleAxis(angleOffset, Vector3.up) * source.transform.forward;
         bullet.Fire(direction);
         
+        soundEffect.Play(0);
         if (muzzleFlashEffect.TryGetMuzzleFlash(out var muzzleFlash))
         {
             muzzleFlash.transform.position = firePoint.position;

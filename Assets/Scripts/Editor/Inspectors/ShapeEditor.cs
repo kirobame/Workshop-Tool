@@ -64,11 +64,26 @@ public class ShapeEditor : Editor
             var size = rect.width * 0.005f;
             Handles.DrawSolidDisc(p1, Vector3.forward, rect.width * 0.005f);
 
-            size *= 4f;
-            var indexRect = new Rect(p1 - Vector2.one * size, Vector2.one * size * 0.5f + Vector2.right);
+            size *= 5f;
+            var indexRect = new Rect(p1 - Vector2.one * size, Vector2.one * (size * 0.5f) + Vector2.right  * 50f + Vector2.up * (size * 0.25f));
             EditorGUI.LabelField(indexRect, Mathf.RoundToInt((float)i / 3).ToString());
         }
+        Handles.EndGUI();
+        
+        serializedObject.ApplyModifiedProperties();
+    }
 
+    private Vector2 GetPosition(SerializedProperty arrayProperty, int index, Rect rect)
+    {
+        var pointProperty = arrayProperty.GetArrayElementAtIndex(index);
+        pointProperty.NextVisible(true);
+
+        var position = pointProperty.vector2Value;
+        return rect.center + new Vector2(position.x, -position.y) * (rect.width * 0.5f * occupiance);
+    }
+
+    private void DisplayRuntimeData(Rect rect)
+    {
         var shape = serializedObject.targetObject as Shape;
         if (shape.RuntimePoints != null)
         {
@@ -87,17 +102,5 @@ public class ShapeEditor : Editor
                 Handles.DrawSolidDisc(p2, Vector3.forward, rect.width * 0.005f);
             }
         }
-        Handles.EndGUI();
-        
-        serializedObject.ApplyModifiedProperties();
-    }
-
-    private Vector2 GetPosition(SerializedProperty arrayProperty, int index, Rect rect)
-    {
-        var pointProperty = arrayProperty.GetArrayElementAtIndex(index);
-        pointProperty.NextVisible(true);
-
-        var position = pointProperty.vector2Value;
-        return rect.center + new Vector2(position.x, -position.y) * (rect.width * 0.5f * occupiance);
     }
 }

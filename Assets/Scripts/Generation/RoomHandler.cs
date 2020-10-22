@@ -60,21 +60,20 @@ public class RoomHandler : MonoBehaviour
         ActivateNext();
     }
 
-    public void ActivateSpecific(int index)
-    {
-        StartCoroutine(ActivationRoutine(false, index));
-    }
+    public void ActivateSpecific(int index) => StartCoroutine(ActivationRoutine(index));
+    public void ActivateNext() => StartCoroutine(ActivationRoutine(advancement + 1));
     
-    public void ActivateNext() => StartCoroutine(ActivationRoutine(true, advancement + 1));
-    private IEnumerator ActivationRoutine(bool safety, int newAdvancement)
+    private IEnumerator ActivationRoutine(int newAdvancement)
     {
-        if (!safety || advancement >= 0) onDeactivation.Invoke();
+        if (advancement >= 0 && advancement <= rooms.Length - 1) onDeactivation.Invoke();
         yield return new WaitForSeconds(activationDelay);
 
         if (advancement >= 0 && advancement < rooms.Length) rooms[advancement].gameObject.SetActive(false);
 
         if (newAdvancement >= rooms.Length)
         {
+            advancement = newAdvancement;
+            
             onEnd.Invoke();
             yield break;
         }

@@ -82,6 +82,17 @@ public class ShapeCreator : EditorWindow
         Undo.undoRedoPerformed += UndoRedo;
     }
 
+   void OnDisable()
+    {
+        if (shape == null) return;
+        EditorUtility.SetDirty(shape);
+    }
+    void OnLostFocus()
+    {
+        if (shape == null) return;
+        EditorUtility.SetDirty(shape);
+    }
+
     void OnSelectionChange()
     {
         if (Selection.activeObject is Shape activeShape)
