@@ -17,6 +17,9 @@ public class ShapeCreator : EditorWindow
     }
     #endregion
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Data for shape interpretation & drawing.
     private const int desiredSize = 12;
     private const int subDivision = 5;
     private const int areaRadius = 5;
@@ -24,7 +27,10 @@ public class ShapeCreator : EditorWindow
     private const int bezierWidth = 2;
     
     private static Shape shape;
+    
+    //------------------------------------------------------------------------------------------------------------------
 
+    // Utility data. 
     private readonly Color[] backgroundShades = new Color[]
     {
         new Color(0.1647059f, 0.1647059f, 0.1647059f),
@@ -46,27 +52,39 @@ public class ShapeCreator : EditorWindow
     private readonly Color standard = new Color(0.2196079f, 0.2196079f, 0.2196079f);
     private readonly Vector4 padding = new Vector4(4,4,4,4);
     
-   
+    //------------------------------------------------------------------------------------------------------------------
     
     [MenuItem("Tools/Custom/Shape Creator")]
     static void OpenWindow() => GetWindow<ShapeCreator>().Show();
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Instance data. 
     private Texture gridTexture;
     
+    // Is the user currently viewing the window information ?
     private bool isExpanded;
+    
+    // Information data.
     private int informationHeight;
     private float lineHeight;
 
+    // Drawing data.
     private Rect area;
     private float unit;
     private float radius;
 
+    // Selection data
     private int selection;
     private SelectionMode mode;
     private bool isDragging;
 
+    // Temp data for display of Bezier curve tangents.
     private List<Tangent> currentTangents;
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Setup all needed data & callbacks + Grab current shape for display & edition if there is one. 
     void OnEnable()
     {
         shape = null;
@@ -82,17 +100,9 @@ public class ShapeCreator : EditorWindow
         Undo.undoRedoPerformed += UndoRedo;
     }
 
-   void OnDisable()
-    {
-        if (shape == null) return;
-        EditorUtility.SetDirty(shape);
-    }
-    void OnLostFocus()
-    {
-        if (shape == null) return;
-        EditorUtility.SetDirty(shape);
-    }
-
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Change of data like in the Animator Editor system.
     void OnSelectionChange()
     {
         if (Selection.activeObject is Shape activeShape)
@@ -101,17 +111,22 @@ public class ShapeCreator : EditorWindow
             Repaint();
         }
     }
+    // Actualize view on any action history change.
     void UndoRedo()
     {
         currentTangents.Clear();
         Repaint();
     }
+    
+    //------------------------------------------------------------------------------------------------------------------
 
     void OnGUI()
     {
+        // Background
         Setup();
         DrawBackground();
         
+        // Shape
         Handles.BeginGUI();
         DrawDiscs();
 
@@ -125,7 +140,8 @@ public class ShapeCreator : EditorWindow
         Handles.EndGUI();
 
         if (shape == null) return;
-        
+
+        // Events
         var Ev = Event.current;
         if (Ev.isMouse) ProcessMouse(Ev);
         if (Ev.type == EventType.KeyDown && Ev.keyCode == KeyCode.A) AddSection(Ev);
@@ -134,6 +150,9 @@ public class ShapeCreator : EditorWindow
         if (mode == SelectionMode.Anchor && Ev.type == EventType.KeyDown && Ev.keyCode == KeyCode.Delete) DeleteSection();
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Actualize all data in relation to the window Rect. 
     private void Setup()
     {
         area = this.position;
@@ -150,6 +169,8 @@ public class ShapeCreator : EditorWindow
         radius = areaRadius * subDivision * unit;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     #region Aesthetics
 
     private void DrawBackground()
@@ -186,6 +207,7 @@ public class ShapeCreator : EditorWindow
         EditorGUI.DrawRect(topRect, standard);
         Handles.DrawLine(area.min + displacement, bottomRight + displacement);
 
+        // Draw information with the needed Rect. 
         DrawFoldout(topRect);
         
         var bottomRect = new Rect(new Vector2(layout.x, layout.height - padding.w), new Vector2(layout.width, padding.w));
@@ -209,6 +231,9 @@ public class ShapeCreator : EditorWindow
         Handles.DrawWireDisc(area.center, Vector3.forward, radius);
     }
 
+    // Draw all needed information for the user, like :
+    // The current shape that is being edited.
+    // The action keys used for the edition. 
     private void DrawFoldout(Rect rect)
     {
         rect = new Rect(rect.position + new Vector2(padding.x, padding.z * 0.5f), new Vector2(position.width - padding.y * 2, lineHeight));
@@ -244,6 +269,8 @@ public class ShapeCreator : EditorWindow
     }
     #endregion
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     #region Bezier
 
     private void DrawBezier()
@@ -376,6 +403,8 @@ public class ShapeCreator : EditorWindow
     }
     #endregion
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     #region Processing
 
     private void ProcessMouse(Event Ev)
@@ -418,6 +447,8 @@ public class ShapeCreator : EditorWindow
         if (Ev.button == 0 && Ev.type == EventType.MouseUp)
         {
             isDragging = false;
+            EditorUtility.SetDirty(shape);
+            
             Ev.Use();
         }
     }
@@ -435,6 +466,7 @@ public class ShapeCreator : EditorWindow
         Undo.RecordObject(shape, $"{shape.GetInstanceID()} Adding Section");
         shape.AddNewSection(destination);
         
+        EditorUtility.SetDirty(shape);
         Repaint();
     }
     private void InsertSection(Event Ev)
@@ -472,6 +504,7 @@ public class ShapeCreator : EditorWindow
         Undo.RecordObject(shape, $"{shape.GetInstanceID()} Inserting section at {from}");
         shape.InsertNewSection(mousePosition, from);
         
+        EditorUtility.SetDirty(shape);
         Repaint();
     }
     private void DeleteSection()
@@ -484,6 +517,7 @@ public class ShapeCreator : EditorWindow
         currentTangents.Clear();
         ClearSelection();
         
+        EditorUtility.SetDirty(shape);
         Repaint();
     }
 
@@ -498,6 +532,9 @@ public class ShapeCreator : EditorWindow
     }
     #endregion
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Utility methods for data translation between Normalized input space & Screen space. 
     private Vector2 Translate(Point point)
     {
         var position = point.position;

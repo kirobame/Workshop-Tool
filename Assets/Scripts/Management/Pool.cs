@@ -5,18 +5,28 @@ using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+// Based empty class allowing Editor Serialization + Display in the Inspector.
 public abstract class Pool : MonoBehaviour { }
+
+// Simple generic implementation to allow Poolable to call the Stock method.
 public abstract class Pool<T> : Pool where T : Object
 {
     public abstract void Stock(Poolable<T> poolable);
 }
+
+// True generic implementation allowing to return when asked the targeted Type & not the Poolable Type.
 public abstract class Pool<T, TPoolable> : Pool<T> where T : Object where TPoolable : Poolable<T>
 {
+    // The base prefab to be instantiated in case of lack of resource. 
     [SerializeField] private TPoolable prefab;
+    
+    // All already cached instances directly ready for use. 
     [SerializeField] private List<TPoolable> instances = new List<TPoolable>();
     
     private Queue<TPoolable> availableInstances = new Queue<TPoolable>();
     private HashSet<TPoolable> usedInstances = new HashSet<TPoolable>();
+    
+    //------------------------------------------------------------------------------------------------------------------
     
     void Awake()
     {
@@ -24,6 +34,9 @@ public abstract class Pool<T, TPoolable> : Pool<T> where T : Object where TPoola
         foreach (var instance in instances) availableInstances.Enqueue(instance);
     }
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Simple request method for an instance. Spawns one if no instance are actually available.
     public T RequestSingle() => Request(1).First();
     public T[] Request(int count)
     {
@@ -47,7 +60,10 @@ public abstract class Pool<T, TPoolable> : Pool<T> where T : Object where TPoola
         return request;
     }
     
-    public T[] RequestSpecific(int count, Func<TPoolable, bool> predicate) => RequestSpecific(prefab, count, predicate);
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Requests a specific instance which needs to answer to a predicate.
+    // If no matching instance is found, the passed prefab will be instantiated as it should answer to the predicate.
     public T[] RequestSpecific(TPoolable prefab, int count, Func<TPoolable, bool> predicate)
     {
         var request = new T[count];
@@ -86,6 +102,9 @@ public abstract class Pool<T, TPoolable> : Pool<T> where T : Object where TPoola
         return request;
     }
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Stocking method allowing the resetting of a Poolable & its targeted instance. 
     public override void Stock(Poolable<T> poolable) => Stock(poolable as TPoolable);
     public void Stock(TPoolable poolable)
     {
@@ -105,6 +124,9 @@ public abstract class Pool<T, TPoolable> : Pool<T> where T : Object where TPoola
         poolable.transform.SetParent(transform);
     }
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Readies a poolable for use.
     private void Claim(TPoolable poolable)
     {
         poolable.SetOrigin(this);

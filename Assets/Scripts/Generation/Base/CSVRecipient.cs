@@ -6,15 +6,23 @@ using System.Net;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// Class holding the data of a google sheet which has been published to the web.
 public class CSVRecipient : ScriptableObject
 {
     public IReadOnlyList<Sheet> Sheets => sheets;
     
+    // The address at which the index sheet can be retrieved,
+    // with the indices, all other sheet can downloaded by modifying this address. 
     [SerializeField] private string baseUrl;
+    
+    // Cached data before build. 
     [SerializeField, HideInInspector] private Sheet[] sheets = Array.Empty<Sheet>();
 
     public void SetSheets(Sheet[] sheets) => this.sheets = sheets;
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Methods allowing to process manually the download of the sheets.
     public UnityWebRequest GetIdRequest()
     {
         var baseRequest = UnityWebRequest.Get(baseUrl);
@@ -38,6 +46,9 @@ public class CSVRecipient : ScriptableObject
         return requests;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Retrieves all indices (Sheet Ids) from the index sheet. 
     public bool EvaluateIdSheet(string data, out string[] ids)
     {
         if (data.Substring(0, 7) != "Indexes") Debug.LogError("Id sheet was not parameterized to be considered like one.");
@@ -55,6 +66,9 @@ public class CSVRecipient : ScriptableObject
         return false;
     }
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Runtime method to download all sheets. 
     public IEnumerator Download(Action<Sheet[]> onCompleted)
     {
         var ids = Array.Empty<string>();

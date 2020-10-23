@@ -5,28 +5,44 @@ using UnityEngine.Events;
 
 public class RoomHandler : MonoBehaviour
 {
+    // The collection of rooms to be downloaded & instantiated. 
     [SerializeField] private RoomCollection collection;
+    [SerializeField] private Room roomPrefab;
+    
+    // Terrain info.
     [SerializeField] private Transform ground;
     [SerializeField] private Vector2 cellSize;
-    [SerializeField] private Room roomPrefab;
-    [SerializeField] private float activationDelay;
+    
+    // Interpreters allowing the processing of the RoomCollection sheet data. 
     [SerializeField] private Interpreter[] interpreters;
+    
+    [SerializeField] private float activationDelay;
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // General game callbacks.
     [SerializeField] private UnityEvent onEnd;
     [SerializeField] private UnityEvent onDeactivation;
     [SerializeField] private UnityEvent onActivation;
 
-    private Room[] rooms;
+    // Caching of interpreters into a dictionary for an easier access. 
     private Dictionary<string,Interpreter> registry = new Dictionary<string,Interpreter>();
 
+    private Room[] rooms;
     private int advancement = -1;
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Initialize needed data & Begin download of RoomCollection sheet data
     void Awake()
     {
         StartCoroutine(collection.Download(Generate));
         foreach (var interpreter in interpreters) registry.Add(interpreter.Target, interpreter);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Instantiate all rooms & Activate the first one. 
     private void Generate(Sheet[] sheets)
     {
         rooms = new Room[sheets.Length];
@@ -60,6 +76,9 @@ public class RoomHandler : MonoBehaviour
         ActivateNext();
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Runtime methods. 
     public void ActivateSpecific(int index) => StartCoroutine(ActivationRoutine(index));
     public void ActivateNext() => StartCoroutine(ActivationRoutine(advancement + 1));
     

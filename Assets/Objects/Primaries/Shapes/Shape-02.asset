@@ -14,22 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   points:
   - position: {x: 0.0033946251, y: 0.7994342}
-    errorRadius: 0.23381057
+    errorRadius: 0.31212747
   - position: {x: 0.47864214, y: 0.80961806}
     errorRadius: 0.1
   - position: {x: 0.80452615, y: 0.33437055}
     errorRadius: 0.1
   - position: {x: 0.80792075, y: 0.0016973126}
-    errorRadius: 0.22807233
+    errorRadius: 0.2762024
   - position: {x: 0.80792075, y: -0.45657706}
     errorRadius: 0.1
   - position: {x: 0.41753888, y: -0.80282885}
     errorRadius: 0.1
   - position: {x: -0.0033946251, y: -0.80622345}
-    errorRadius: 0.22166666
+    errorRadius: 0.3188786
   - position: {x: 0, y: -0.47015557}
     errorRadius: 0.1
   - position: {x: -0.0033946251, y: 0.110325314}
     errorRadius: 0.1
   - position: {x: 0, y: 1}
-    errorRadius: 0.29435217
+    errorRadius: 0.31203654

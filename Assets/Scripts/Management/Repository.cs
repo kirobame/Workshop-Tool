@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+// Class allowing the registration of any runtime or scene instance which cannot be cached before the booting up of the game.
 public static class Repository
 {
     private static Dictionary<Token, List<object>> registry = new Dictionary<Token, List<object>>();
-
+    
+    //------------------------------------------------------------------------------------------------------------------
+    
     public static void Register(Token token, object value)
     {
         if (registry.TryGetValue(token, out var list)) list.Add(value);
@@ -22,6 +25,8 @@ public static class Repository
         }
     }
     
+    //------------------------------------------------------------------------------------------------------------------
+    
     public static void Unregister(Token token, object value)
     {
         if (!registry.TryGetValue(token, out var list)) return;
@@ -32,6 +37,8 @@ public static class Repository
         if (!registry.TryGetValue(token, out var list)) return;
         foreach (var value in values) list.Remove(value);
     }
+    
+    //------------------------------------------------------------------------------------------------------------------
 
     public static T GetFirst<T>(Token token) => Get<T>(token, 0);
     public static T Get<T>(Token token, int index) => (T)registry[token][index];

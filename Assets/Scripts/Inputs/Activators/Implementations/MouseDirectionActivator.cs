@@ -6,6 +6,7 @@ public class MouseDirectionActivator : Activator<Vector2>
     public override string ShortName => "MDir";
 
     [SerializeField] private Token cameraToken;
+    
     [SerializeField] private Token sourceToken;
     [SerializeField] private Vector3 offset;
     [SerializeField] private RenderTexture renderTarget;

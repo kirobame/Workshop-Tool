@@ -9,6 +9,7 @@ public class ShapeEditor : Editor
     
     public override void OnInspectorGUI()
     {
+        // Draw base values
         serializedObject.Update();
         
         var iterator = serializedObject.GetIterator();
@@ -20,17 +21,20 @@ public class ShapeEditor : Editor
         
         EditorGUILayout.Separator();
         
+        // Request a square rect for the display of the current shape. 
         var rect = GUILayoutUtility.GetRect(EditorGUIUtility.currentViewWidth, EditorGUIUtility.currentViewWidth);
         EditorGUI.DrawRect(rect, new Color(0.175f,0.175f,0.175f));
         
         Handles.BeginGUI();
 
+        //Draw the containing circle of the shape.
         Handles.color = new Color(0.3f, 0.3f, 0.3f).SetAlpha(0.15f);
         Handles.DrawSolidDisc(rect.center, Vector3.forward, rect.width * 0.5f * occupiance);
 
         Handles.color = new Color(0.1f, 0.1f, 0.1f);
         Handles.DrawWireDisc(rect.center, Vector3.forward, rect.width * 0.5f * occupiance);
         
+        //Draw window borders. 
         var topRight = new Vector2(rect.xMax, rect.yMin);
         var bottomLeft = new Vector2(rect.xMin, rect.yMax);
         
@@ -45,6 +49,7 @@ public class ShapeEditor : Editor
         Handles.DrawLine(rect.max, bottomLeft);
         Handles.DrawLine(bottomLeft, rect.min);
 
+        // Begin shape drawing. 
         iterator.NextVisible(false);
         Handles.color = Color.yellow;
 
@@ -58,12 +63,15 @@ public class ShapeEditor : Editor
                 var p3 = GetPosition(iterator, i + 2, rect);
                 var p4 = GetPosition(iterator, i + 3, rect);
             
+                // Draw the current curve. 
                 Handles.DrawBezier(p1,p4, p2,p3, Color.yellow,null, 2);
             }
 
+            // Put forth the position of anchors. 
             var size = rect.width * 0.005f;
             Handles.DrawSolidDisc(p1, Vector3.forward, rect.width * 0.005f);
 
+            // Show index of each anchor.
             size *= 5f;
             var indexRect = new Rect(p1 - Vector2.one * size, Vector2.one * (size * 0.5f) + Vector2.right  * 50f + Vector2.up * (size * 0.25f));
             EditorGUI.LabelField(indexRect, Mathf.RoundToInt((float)i / 3).ToString());
@@ -72,7 +80,10 @@ public class ShapeEditor : Editor
         
         serializedObject.ApplyModifiedProperties();
     }
+    
+    //------------------------------------------------------------------------------------------------------------------
 
+    // Convert the normalized serializedPoint into a screen position. 
     private Vector2 GetPosition(SerializedProperty arrayProperty, int index, Rect rect)
     {
         var pointProperty = arrayProperty.GetArrayElementAtIndex(index);
@@ -82,6 +93,7 @@ public class ShapeEditor : Editor
         return rect.center + new Vector2(position.x, -position.y) * (rect.width * 0.5f * occupiance);
     }
 
+    // Utility method to see how runtimeData was generated. 
     private void DisplayRuntimeData(Rect rect)
     {
         var shape = serializedObject.targetObject as Shape;

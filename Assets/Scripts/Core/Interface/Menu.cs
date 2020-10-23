@@ -30,14 +30,8 @@ public class Menu : MonoBehaviour
         }
         else
         {
-            target.SetActive(false);
-            Time.timeScale = 1f;
-
-            inputHandler.SetActiveMap("Standard", true);
             soundEffect.Play(1);
-            
-            musicOn.TransitionTo(1f);
-            state = false;
+            TurnOff(inputHandler);
         }
     }
 
@@ -47,15 +41,22 @@ public class Menu : MonoBehaviour
         Score.ModifyBy(-Score.Value);
         
         var inputHandler = Repository.GetFirst<InputHandler>(inputHandlerToken);
-        inputHandler.SetActiveMap("Standard", true);
+        TurnOff(inputHandler);
         
-        target.SetActive(false);
-        Time.timeScale = 1f;
-        
-        musicOn.TransitionTo(1f);
         soundEffect.Play(2);
-        
+
         var roomHandler = Repository.GetFirst<RoomHandler>(roomHandlerToken);
         roomHandler.ActivateSpecific(0);
+    }
+
+    private void TurnOff(InputHandler inputHandler)
+    {
+        target.SetActive(false);
+        Time.timeScale = 1f;
+
+        inputHandler.SetActiveMap("Standard", true);
+
+        musicOn.TransitionTo(1f);
+        state = false;
     }
 }

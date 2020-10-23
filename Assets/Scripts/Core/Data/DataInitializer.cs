@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+// Utility class allowing the initialization of General game data.
+// In this case the score value for certain entities. 
 public class DataInitializer : MonoBehaviour
 {
     [SerializeField] private CoreData[] datas;

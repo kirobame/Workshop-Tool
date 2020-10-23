@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 
 [Serializable]
+// Container class holding all data concerning a specific google sheet. 
 public class Sheet
 {
     public bool IsInitialized => size != Vector2Int.zero;
@@ -14,12 +15,17 @@ public class Sheet
     
     public Vector2Int Size => size;
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     [SerializeField] private string name;
     [SerializeField] private string version;
     
     [SerializeField] private string[] array;
     [SerializeField] private Vector2Int size;
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Simple indexers for retrieving cell data. 
     public string this[Vector2Int index] => this[index.x, index.y];
     public string this[int x, int y]
     {
@@ -30,6 +36,9 @@ public class Sheet
         }
     }
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Process the Csv into a serialized string array. 
     public bool Process(string data)
     {
         var lines = Regex.Split(data, "\r\n|\r|\n");
@@ -59,6 +68,8 @@ public class Sheet
         return true;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     public override string ToString()
     {
         var builder = new StringBuilder();

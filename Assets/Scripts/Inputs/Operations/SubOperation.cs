@@ -3,6 +3,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 [Serializable]
+// Container class allowing ease of use for Operation chaining. 
 public class SubOperation : IEquatable<SubOperation>
 {
     public SubOperation(Operation source, OperationPhase overridingPhase = OperationPhase.None)
@@ -11,16 +12,27 @@ public class SubOperation : IEquatable<SubOperation>
         this.overridingPhase = this.overridingPhase;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     public Operation Value => runtimeValue;
     
+    // The contained value.
     [SerializeField] private Operation value;
+    
+    // Supplementary data allowing to call the targeted Operation differently than in the way it was originally set up.
     [SerializeField] private OperationPhase overridingPhase;
 
+    // Cached callbacks for easy subscription behaviours.
     private Action<object, Object[]> beginAction;
     private Action<object, Object[]> performAction;
     private Action<object, Object[]> endAction;
+    
+    // Runtime representation to avoid any data corruption.
     private Operation runtimeValue;
         
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Chaining methods based on the listened phases or the Overriding phases for this Operation instance.
     public void Link(Operation source)
     {
         beginAction = (args, parameters) => runtimeValue.Begin(args, parameters);
@@ -45,6 +57,9 @@ public class SubOperation : IEquatable<SubOperation>
         if (phase.HasFlag(OperationPhase.End)) source.OnEnd -= endAction;
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // IEquatable implementation. 
     public bool Equals(SubOperation other)
     {
         if (ReferenceEquals(null, other)) return false;

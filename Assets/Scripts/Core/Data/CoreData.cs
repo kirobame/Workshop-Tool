@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ludiq.PeekCore;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewScorerData", menuName = "Custom/Generation/Data/Scorer")]

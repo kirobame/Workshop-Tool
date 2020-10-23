@@ -1,17 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ludiq.PeekCore;
 
+// Runtime class allowing the processing of a data sheet into rows & columns of data.
 public class RuntimeSheet
 {
     public Sheet Source => source;
-    
+
+    public IReadOnlyDictionary<string, List<string>> Rows => rows;
     private Dictionary<string, List<string>> rows = new Dictionary<string, List<string>>();
+    
+    public IReadOnlyDictionary<string, List<string>> Columns => columns;
     private Dictionary<string, List<string>> columns = new Dictionary<string, List<string>>();
 
     private Sheet source;
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Allows access of data at specific Row/Column intersection. 
     public string this[string rowKey, string columnKey]
     {
         get
@@ -21,6 +27,9 @@ public class RuntimeSheet
         }
     }
     
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Identifies all rows & columns in the given sheet. 
     public void Process(Sheet sheet)
     {
         source = sheet;
@@ -72,6 +81,8 @@ public class RuntimeSheet
         }
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     public override string ToString()
     {
         var builder = new StringBuilder();

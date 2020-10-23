@@ -4,17 +4,22 @@ using System.Linq;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewShape", menuName = "Custom/Shape")]
+// Represents a chain of Bezier curves that the player can replicate with the stick of a gamepad.
 public class Shape : ScriptableObject
 {
+    // Accessible creation data.
     public const float standardErrorRadius = 0.1f;
-    private const int curveSubdivision = 6;
+    public static readonly Vector2 errorRange = new Vector2(0.05f, 0.35f);
 
+    // Algorithm data. 
     private const float headingAffect = 0.075f;
     private const float spacingAffect = 0.1f;
-    private const float radiusForgiveness = 2.5f;
+    private const float radiusForgiveness = 2f;
+    private const int curveSubdivision = 4;
+   
+    //------------------------------------------------------------------------------------------------------------------
     
-    public static readonly Vector2 errorRange = new Vector2(0.05f, 0.35f);
-    
+    // Serialized Points which creates the set of Bezier curves forming the shape to replicate. 
     public IReadOnlyList<Point> Points => points;
     [SerializeField] private List<Point> points = new List<Point>()
     {
@@ -24,11 +29,16 @@ public class Shape : ScriptableObject
         new Point(new Vector2(0f, 1f), standardErrorRadius),
     };
 
+    // Extended runtime data for better precision in the algorithm.
+    // Roughly said : Replaces all curves by a less spaced out chain of lines. 
     public IReadOnlyList<Point> RuntimePoints => runtimePoints;
     private Point[] runtimePoints;
     
+    //------------------------------------------------------------------------------------------------------------------
+    
     #region Edition
 
+    // Set of Methods allowing the delegation of edition code to this class rather than its Editor.
     public void SetPointPosition(int index, Vector2 position)
     {
         var point = points[index];
@@ -84,6 +94,8 @@ public class Shape : ScriptableObject
     }
     #endregion
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     public void GenerateRuntimeData()
     {
         var results = new List<Point>();
@@ -113,6 +125,10 @@ public class Shape : ScriptableObject
         results.Add(last);
         runtimePoints = results.ToArray();
     }
+    
+    //------------------------------------------------------------------------------------------------------------------
+    
+    // Recognition methods. 
     public bool CanStartEvaluation(Vector2 position)
     {
         var firstPoint = points.First();

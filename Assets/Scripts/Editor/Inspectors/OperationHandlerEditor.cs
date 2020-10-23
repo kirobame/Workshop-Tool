@@ -9,16 +9,17 @@ using UnityEngine.InputSystem;
 [CanEditMultipleObjects]
 public class OperationHandlerEditor : Editor
 {
+    // Drawing data
     private Color black = new Color(0.15f, 0.15f, 0.15f);
     private float size;
 
-    void OnEnable()
-    {
-        size = EditorGUIUtility.singleLineHeight;
-    }
+    void OnEnable() => size = EditorGUIUtility.singleLineHeight;
 
+    //------------------------------------------------------------------------------------------------------------------
+    
     public override void OnInspectorGUI()
     {
+        // Draw base values & then draw InputLinks.
         serializedObject.UpdateIfRequiredOrScript();
 
         var iterator = serializedObject.GetIterator();
@@ -37,13 +38,17 @@ public class OperationHandlerEditor : Editor
 
         if (iterator.arraySize > 0)
         {
+            //Begin the drawing chain. 
+            
             DrawSeparation(Vector2.zero, 3);
             DrawLinks(iterator);
         }
 
         serializedObject.ApplyModifiedProperties();
     }
-
+    
+    //------------------------------------------------------------------------------------------------------------------
+    
     private void DrawSeparation(Vector2 margins, float yAddition = 4f, bool withSeparation = true)
     {
         if (withSeparation) EditorGUILayout.Separator();
@@ -60,10 +65,12 @@ public class OperationHandlerEditor : Editor
         EditorGUI.DrawRect(lastRect, black);
     }
 
+    // Root method for the drawing chain.
     private void DrawLinks(SerializedProperty linksProperty)
     {
          for (var i = 0; i < linksProperty.arraySize; i++)
          {
+             // Get root property.
             var linkProperty = linksProperty.GetArrayElementAtIndex(i);
 
             var inputProperty = linkProperty.FindPropertyRelative("inputReference");
@@ -71,6 +78,7 @@ public class OperationHandlerEditor : Editor
             
             //----------------------------------------------------------------------------------------------------------
 
+            // Draw header with the appropriate unique name. 
             var activatorProperty = linkProperty.FindPropertyRelative("activator");
             var activator = activatorProperty.objectReferenceValue as Activator;
             
@@ -82,6 +90,7 @@ public class OperationHandlerEditor : Editor
 
             //----------------------------------------------------------------------------------------------------------
             
+            // Allow the deletion of the link.
             var layoutRect = GUILayoutUtility.GetLastRect();
             layoutRect.width -= EditorGUIUtility.labelWidth;
             layoutRect.x += EditorGUIUtility.labelWidth;
@@ -94,6 +103,7 @@ public class OperationHandlerEditor : Editor
             
             //----------------------------------------------------------------------------------------------------------
 
+            // If not expanded skip.
             if (!linkProperty.isExpanded)
             {
                 EndDrawLink(linksProperty, i);
@@ -103,6 +113,7 @@ public class OperationHandlerEditor : Editor
 
             //----------------------------------------------------------------------------------------------------------
             
+            // Draw the main values : InputAction & Activator.
             EditorGUILayout.PropertyField(inputProperty, new GUIContent("Reference"));
             
             var operandsProperty = linkProperty.FindPropertyRelative("operands");
@@ -118,6 +129,7 @@ public class OperationHandlerEditor : Editor
             
             //----------------------------------------------------------------------------------------------------------
 
+            // If there are no operands skip.
             if (operandsProperty.arraySize == 0)
             {
                 EndDrawLink(linksProperty, i);
@@ -134,6 +146,7 @@ public class OperationHandlerEditor : Editor
             }
             EditorGUI.indentLevel++;
             
+            // Prepare layout Rect for use by Operands.
             layoutRect = GUILayoutUtility.GetLastRect();
             layoutRect.width = size;
             layoutRect.x += 4;
@@ -147,6 +160,7 @@ public class OperationHandlerEditor : Editor
             EndDrawLink(linksProperty, i);
          }
     }
+    // Skip method.
     private void EndDrawLink(SerializedProperty linksProperty, int index)
     {
         EditorGUI.indentLevel = 0;
@@ -157,11 +171,13 @@ public class OperationHandlerEditor : Editor
     {
         for (var i = 0; i < operandsProperty.arraySize; i++)
         {
+            // Get root property.
             var operandProperty = operandsProperty.GetArrayElementAtIndex(i);
             var operationProperty = operandProperty.FindPropertyRelative("operation");
                 
             //----------------------------------------------------------------------------------------------------------
             
+            // Draw root property & allow its removal.
             EditorGUILayout.BeginHorizontal();
             
             EditorGUILayout.PropertyField(operationProperty, GUIContent.none);
@@ -174,6 +190,7 @@ public class OperationHandlerEditor : Editor
 
             //-----------------------------------------------------------------------------------
 
+            // Display the index of the current Operand for better dissociation multiple ones. 
             var indexRect = layoutRect;
             GUI.Button(indexRect, new GUIContent($"- {i.ToString()}"), EditorStyles.label);
             layoutRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
@@ -184,6 +201,8 @@ public class OperationHandlerEditor : Editor
                 continue;
             }
             
+            // Gets needed attribute to draw parameters.
+            // Allows to get a name & type for each objectField with each being associated to one parameter.
             var typesAttribute = operationProperty.objectReferenceValue.GetType().GetCustomAttribute<OperationParameterTypesAttribute>();
             var namesAttribute = operationProperty.objectReferenceValue.GetType().GetCustomAttribute<OperationParameterNamesAttribute>();
             
@@ -193,6 +212,7 @@ public class OperationHandlerEditor : Editor
                 continue;
             }
             
+            // Get parameters & Draw them.
             var parametersProperty = operandProperty.FindPropertyRelative("parameters");
             parametersProperty.arraySize = typesAttribute.Types.Count;
             layoutRect = DrawParameters(parametersProperty, layoutRect, typesAttribute.Types, namesAttribute.Names);
@@ -200,7 +220,6 @@ public class OperationHandlerEditor : Editor
             //----------------------------------------------------------------------------------------------------------
             
             End();
-
             void End()
             {
                 if (i < operandsProperty.arraySize - 1)
@@ -213,7 +232,6 @@ public class OperationHandlerEditor : Editor
 
         return layoutRect;
     }
-    
     private Rect DrawParameters(SerializedProperty parametersProperty, Rect layoutRect, IReadOnlyList<Type> types, IReadOnlyList<string> names)
     {
         for (var i = 0; i < parametersProperty.arraySize; i++)

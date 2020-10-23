@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   points:
   - position: {x: -0.01098901, y: -0.8307692}
-    errorRadius: 0.18027335
+    errorRadius: 0.2654566
   - position: {x: 0.69670326, y: -0.7340659}
     errorRadius: 0.1
   - position: {x: 0.7582417, y: -0.26373625}
     errorRadius: 0.1
   - position: {x: 0.80219775, y: -0.004395604}
-    errorRadius: 0.16411562
+    errorRadius: 0.24625453
